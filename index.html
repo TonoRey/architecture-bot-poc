@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>antonio@arch-bot:~$ learning_path</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap');
+
+    :root {
+      --bg:        #080810;
+      --bg-card:   #0c0c18;
+      --bg-hover:  #10101e;
+      --blue-dim:  #3a5a9a;
+      --blue-mid:  #5f7fbb;
+      --blue:      #7ea8d8;
+      --blue-hi:   #a8c8f0;
+      --amber:     #c8a040;
+      --green:     #5fbb7f;
+      --green-dim: #3a7a5a;
+      --red-dim:   #8a3030;
+      --red:       #c85050;
+      --border:    #1a1a2e;
+      --border-hi: #2a2a4a;
+      --text-muted:#3a3a6a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--blue);
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 16px;
+      line-height: 1.8;
+      min-height: 100vh;
+    }
+
+    /* ── Scanline overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.06) 2px,
+        rgba(0,0,0,0.06) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .wrapper { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 32px 0 24px;
+      margin-bottom: 40px;
+    }
+    .prompt-line {
+      color: var(--blue-hi);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .prompt-line span { color: var(--blue-dim); }
+    header h1 {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--blue-hi);
+      letter-spacing: 0.04em;
+    }
+    header h1 .cursor {
+      display: inline-block;
+      width: 12px; height: 18px;
+      background: var(--blue-hi);
+      vertical-align: middle;
+      margin-left: 4px;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    .tagline {
+      color: var(--blue-dim);
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+    }
+    nav a {
+      color: var(--blue-dim);
+      text-decoration: none;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 2px;
+      transition: all 0.15s;
+      letter-spacing: 0.06em;
+    }
+    nav a:hover {
+      color: var(--blue-hi);
+      border-color: var(--blue-mid);
+      background: var(--bg-hover);
+    }
+    nav a::before { content: '> '; color: var(--text-muted); }
+
+    /* ── Section titles ── */
+    .section { margin-bottom: 48px; }
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue-dim);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+    .section-title::before { content: '## '; color: var(--text-muted); }
+
+    /* ── Progress bar ── */
+    .progress-block {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .progress-label { color: var(--blue-hi); font-size: 14px; }
+    .progress-pct { color: var(--amber); font-size: 14px; font-weight: 600; }
+    .bar-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-dim), var(--blue-mid));
+      border-radius: 3px;
+      transition: width 0.6s ease;
+    }
+    .bar-fill.amber {
+      background: linear-gradient(90deg, #7a5a10, var(--amber));
+    }
+    .bar-fill.green {
+      background: linear-gradient(90deg, var(--green-dim), var(--green));
+    }
+    .progress-detail {
+      color: var(--blue-dim);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* ── Weekly log ── */
+    .week-entry {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--blue-dim);
+      border-radius: 0 4px 4px 0;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+    }
+    .week-entry.current { border-left-color: var(--blue-mid); }
+    .week-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .week-title { color: var(--blue-hi); font-size: 14px; font-weight: 600; }
+    .week-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.06em;
+    }
+    .badge-active  { background: #0a1a3a; color: var(--blue-mid); border: 1px solid var(--blue-dim); }
+    .badge-pending { background: #1a1a0a; color: var(--amber); border: 1px solid #4a3a10; }
+    .badge-done    { background: #0a1a0a; color: #4a8a6a; border: 1px solid #1a3a2a; }
+    .week-items { list-style: none; }
+    .week-items li {
+      color: var(--blue-dim);
+      font-size: 14px;
+      padding: 2px 0;
+    }
+    .week-items li::before { content: '  ├─ '; color: var(--text-muted); }
+    .week-items li:last-child::before { content: '  └─ '; color: var(--text-muted); }
+
+    /* ── Sprint cards grid ── */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+    }
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+      transition: border-color 0.15s;
+    }
+    .module-card:hover { border-color: var(--border-hi); background: var(--bg-hover); }
+    .module-card.done   { border-left: 3px solid var(--green); }
+    .module-card.active { border-left: 3px solid var(--amber); }
+    .module-card.locked { border-left: 3px solid var(--red-dim); opacity: 0.5; }
+    .module-num  { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+    .module-name { font-size: 15px; color: var(--blue-hi); font-weight: 500; margin-bottom: 6px; }
+    .module-desc { font-size: 13px; color: var(--blue-dim); line-height: 1.6; }
+    .module-status {
+      display: inline-block;
+      font-size: 10px;
+      margin-top: 8px;
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+    .status-done   { background: #0a2a1a; color: var(--green); }
+    .status-active { background: #2a200a; color: var(--amber); }
+    .status-locked { background: #1a0a0a; color: var(--red-dim); }
+
+    /* ── Stack / Concepts table ── */
+    .concept-list { display: flex; flex-direction: column; gap: 8px; }
+    .concept-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 120px;
+      gap: 16px;
+      align-items: start;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 12px 16px;
+      transition: border-color 0.15s;
+    }
+    .concept-row:hover { border-color: var(--border-hi); }
+    .concept-name { color: var(--blue-hi); font-size: 14px; font-weight: 500; }
+    .concept-desc { color: var(--blue-dim); font-size: 13px; line-height: 1.7; }
+    .concept-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 2px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .tag-gcp     { background: #0a1a2a; color: #5090d0; border: 1px solid #1a3a5a; }
+    .tag-llm     { background: #1a0a2a; color: #c080f0; border: 1px solid #3a1a5a; }
+    .tag-data    { background: #1a2a0a; color: #90c040; border: 1px solid #2a4a10; }
+    .tag-api     { background: #0a2a2a; color: #40c0c0; border: 1px solid #1a4a4a; }
+    .tag-rag     { background: #2a1a0a; color: var(--amber); border: 1px solid #4a3010; }
+
+    /* ── Code snippets ── */
+    .cmd-list { display: flex; flex-direction: column; gap: 8px; }
+    .cmd-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 16px;
+      transition: border-color 0.15s;
+    }
+    .cmd-card:hover { border-color: var(--border-hi); }
+    .cmd-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .cmd-prompt { color: var(--text-muted); font-size: 12px; }
+    .cmd-code {
+      color: var(--blue-hi);
+      font-size: 14px;
+      font-weight: 500;
+      background: #08081a;
+      padding: 2px 10px;
+      border-radius: 3px;
+      border: 1px solid var(--border);
+    }
+    .cmd-objective { color: var(--blue-dim); font-size: 13px; }
+    .cmd-objective strong { color: var(--amber); font-weight: 500; }
+    .cmd-example {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-left: 2px solid var(--border);
+      padding-left: 10px;
+    }
+
+    /* ── Tools grid ── */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px;
+      transition: border-color 0.15s;
+    }
+    .tool-card:hover { border-color: var(--border-hi); background: var(--bg-hover); }
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .tool-name { color: var(--blue-hi); font-size: 15px; font-weight: 600; }
+    .tool-type {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 2px;
+    }
+    .type-oss    { background: #0a1a2a; color: #5090d0; border: 1px solid #1a3a5a; }
+    .type-gcp    { background: #1a1a0a; color: var(--amber); border: 1px solid #3a3010; }
+    .type-python { background: #0a2a1a; color: var(--green); border: 1px solid #1a4a2a; }
+    .type-free   { background: #1a0a2a; color: #c080f0; border: 1px solid #3a1a5a; }
+    .tool-url  { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+    .tool-url a { color: var(--blue-dim); text-decoration: none; }
+    .tool-url a:hover { color: var(--blue-mid); }
+    .tool-desc { font-size: 13px; color: var(--blue-dim); line-height: 1.7; }
+    .tool-used { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+    /* ── Decisions / Architecture Principles ── */
+    .rule-list { display: flex; flex-direction: column; gap: 10px; }
+    .rule-item {
+      display: flex;
+      gap: 14px;
+      align-items: start;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 16px;
+    }
+    .rule-num { color: var(--text-muted); font-size: 18px; font-weight: 600; min-width: 28px; line-height: 1; padding-top: 2px; }
+    .rule-text { color: var(--blue-dim); font-size: 14px; line-height: 1.7; }
+    .rule-text strong { color: var(--blue-hi); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    footer span { color: var(--blue-dim); }
+
+    /* ── Password overlay ── */
+    #lock-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+    #lock-screen .lock-title {
+      font-size: 13px;
+      color: var(--blue-dim);
+      letter-spacing: 0.1em;
+    }
+    #lock-screen .lock-title span { color: var(--blue-hi); }
+    #lock-screen input {
+      background: var(--bg-card);
+      border: 1px solid var(--border-hi);
+      color: var(--blue-hi);
+      font-family: 'Fira Code', monospace;
+      font-size: 15px;
+      padding: 10px 16px;
+      border-radius: 3px;
+      outline: none;
+      width: 280px;
+      text-align: center;
+      letter-spacing: 0.12em;
+    }
+    #lock-screen input:focus { border-color: var(--blue-mid); }
+    #lock-screen input::placeholder { color: var(--text-muted); letter-spacing: 0.06em; }
+    #lock-screen .lock-btn {
+      background: transparent;
+      border: 1px solid var(--blue-dim);
+      color: var(--blue);
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      padding: 8px 24px;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      transition: all 0.15s;
+    }
+    #lock-screen .lock-btn:hover { border-color: var(--blue-hi); color: var(--blue-hi); }
+    #lock-screen .lock-error {
+      font-size: 12px;
+      color: var(--red);
+      height: 16px;
+      letter-spacing: 0.06em;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-8px); }
+      40%,80%  { transform: translateX(8px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 3px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .wrapper { padding: 0 14px 48px; }
+      .prompt-line { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      header h1 { font-size: 19px; }
+      .tagline { font-size: 12px; }
+      nav a { font-size: 12px; padding: 5px 10px; }
+      .section-title { font-size: 12px; }
+      .progress-block { padding: 14px 16px; }
+      .week-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .modules-grid { grid-template-columns: 1fr; }
+      .concept-row { grid-template-columns: 1fr; gap: 6px; }
+      .concept-tag { width: fit-content; }
+      .tools-grid { grid-template-columns: 1fr; }
+      footer { font-size: 11px; flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- PASSWORD LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-title"><span>antonio</span>@arch-bot:~$ authenticate</div>
+  <input type="password" id="pwd-input" placeholder="enter access key" autofocus />
+  <button class="lock-btn" onclick="checkPassword()">[ ENTER ]</button>
+  <div class="lock-error" id="lock-error"></div>
+</div>
+
+<div class="wrapper" id="main-content" style="display:none">
+
+  <!-- HEADER -->
+  <header>
+    <div class="prompt-line"><span>antonio</span>@<span>arch-bot</span>:~$ ./build_poc.sh --project=architecture-intelligence --sprint=1</div>
+    <h1>Architecture Intelligence Chatbot — PoC Path<span class="cursor"></span></h1>
+    <div class="tagline"># 4-week PoC · Started May 5, 2025 · Target: June 2, 2025 · Stack: GCP + LLM OSS + LangChain</div>
+  </header>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#progress">Progress</a>
+    <a href="#sprints">Sprints</a>
+    <a href="#stack">Tech Stack</a>
+    <a href="#snippets">Code Snippets</a>
+    <a href="#tools">Tools</a>
+    <a href="#decisions">Arch Decisions</a>
+    <a href="#log">Weekly Log</a>
+  </nav>
+
+  <!-- ── PROGRESS ── -->
+  <section class="section" id="progress">
+    <div class="section-title">Overall Progress</div>
+
+    <div class="progress-block">
+      <div class="progress-meta">
+        <span class="progress-label">PoC Overall Completion</span>
+        <span class="progress-pct">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%"></div></div>
+      <div class="progress-detail"># Week 0 of 4 · PoC not started · Waiting for draw.io diagram</div>
+    </div>
+
+    <div class="progress-block">
+      <div class="progress-meta">
+        <span class="progress-label">Sprint 1 — Setup + Graph Builder</span>
+        <span class="progress-pct" style="color:var(--amber)">0%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill amber" style="width:0%"></div></div>
+      <div class="progress-detail"># Parse draw.io XML · Build NetworkX graph · Run in Colab · Visualize architecture</div>
+    </div>
+
+    <div class="progress-block">
+      <div class="progress-meta">
+        <span class="progress-label">Sprint 2 — LLM + Tool Use</span>
+        <span class="progress-pct" style="color:var(--text-muted)">LOCKED</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%; opacity:0.3"></div></div>
+      <div class="progress-detail"># Gemini API · LangChain tools · graph_query() · count_components() · Basic Q&A working</div>
+    </div>
+
+    <div class="progress-block">
+      <div class="progress-meta">
+        <span class="progress-label">Sprint 3 — RAG + Impact Analysis</span>
+        <span class="progress-pct" style="color:var(--text-muted)">LOCKED</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:0%; opacity:0.3"></div></div>
+      <div class="progress-detail"># sentence-transformers · FAISS · semantic search · "what happens if I remove X?" working</div>
+    </div>
+
+    <div class="progress-block">
+      <div class="progress-meta">
+        <span class="progress-label">Sprint 4 — Demo Polish</span>
+        <span class="progress-pct" style="color:var(--text-muted)">LOCKED</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill green" style="width:0%; opacity:0.3"></div></div>
+      <div class="progress-detail"># ipywidgets chat UI · conversation memory · demo script · boss presentation ready</div>
+    </div>
+  </section>
+
+  <!-- ── SPRINTS ── -->
+  <section class="section" id="sprints">
+    <div class="section-title">4-Week Sprint Plan</div>
+
+    <!-- Transversal banner -->
+    <div class="progress-block" style="margin-bottom:20px; border-left: 3px solid var(--amber);">
+      <div class="progress-meta">
+        <span class="progress-label">⚡ Transversal: Claude as Pair Programmer</span>
+        <span class="progress-pct" style="color:var(--amber)">ALL SPRINTS</span>
+      </div>
+      <div class="progress-detail"># Antonio + team + Claude build together · No external courses · Learn by doing · Every error debugged here</div>
+    </div>
+
+    <div class="modules-grid">
+
+      <div class="module-card active">
+        <div class="module-num">SPRINT 1 · Week 1</div>
+        <div class="module-name">Setup + Graph Builder</div>
+        <div class="module-desc">Parse draw.io XML with Python. Build NetworkX directed graph. Visualize architecture in Colab. Identify nodes (APIs, DBs, services) and edges (dependencies).</div>
+        <div class="module-status status-active">IN PROGRESS</div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-num">SPRINT 2 · Week 2</div>
+        <div class="module-name">LLM Brain + Tool Use</div>
+        <div class="module-desc">Connect Gemini 1.5 Flash. Build LangChain tools: graph_query(), count_components(), get_dependents(). LLM answers basic questions about your architecture.</div>
+        <div class="module-status status-locked">LOCKED</div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-num">SPRINT 3 · Week 3</div>
+        <div class="module-name">RAG + Impact Analysis</div>
+        <div class="module-desc">Add semantic search with FAISS + sentence-transformers. Graph traversal for downstream impact. Answer: "What breaks if I remove API X?" in natural language.</div>
+        <div class="module-status status-locked">LOCKED</div>
+      </div>
+
+      <div class="module-card locked">
+        <div class="module-num">SPRINT 4 · Week 4</div>
+        <div class="module-name">Demo Polish + Presentation</div>
+        <div class="module-desc">ipywidgets chat UI in Colab. Conversation memory. 5 demo questions scripted. Boss presentation rehearsed. PoC delivered.</div>
+        <div class="module-status status-locked">LOCKED</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── TECH STACK ── -->
+  <section class="section" id="stack">
+    <div class="section-title">Tech Stack — Zero Cost PoC</div>
+    <div class="concept-list">
+
+      <div class="concept-row">
+        <div class="concept-name">Google Colab</div>
+        <div class="concept-desc">Notebook environment. Runs in browser, no local install needed. Shared with team via Google Drive. Demo runs here.</div>
+        <div class="concept-tag tag-gcp">FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">Gemini 1.5 Flash</div>
+        <div class="concept-desc">LLM via Google AI Studio free tier. 1M tokens/day, 15 RPM. Native GCP, no GPU needed. Used for reasoning and natural language answers.</div>
+        <div class="concept-tag tag-llm">LLM · FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">NetworkX</div>
+        <div class="concept-desc">Python library for directed graphs. Stores architecture as nodes + edges. Supports path finding, dependency traversal, node filtering.</div>
+        <div class="concept-tag tag-data">GRAPH · FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">FAISS</div>
+        <div class="concept-desc">Facebook AI in-memory vector store. No database needed. Stores embeddings of component descriptions for semantic search.</div>
+        <div class="concept-tag tag-rag">RAG · FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">sentence-transformers</div>
+        <div class="concept-desc">OSS library to generate text embeddings locally on CPU. Model: all-MiniLM-L6-v2. No API calls, no cost, runs in Colab.</div>
+        <div class="concept-tag tag-llm">OSS · FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">LangChain</div>
+        <div class="concept-desc">Orchestration framework. Manages tools, chains, memory. Lets LLM decide which function to call based on the question.</div>
+        <div class="concept-tag tag-api">ORCH · FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">xml.etree (Python)</div>
+        <div class="concept-desc">Built-in Python XML parser. Reads draw.io file and extracts nodes, labels, and connections. Zero dependencies.</div>
+        <div class="concept-tag tag-data">PARSER · FREE</div>
+      </div>
+
+      <div class="concept-row">
+        <div class="concept-name">ipywidgets</div>
+        <div class="concept-desc">Chat UI inside Colab notebook. Input box + output display. Makes the demo interactive without building a web app.</div>
+        <div class="concept-tag tag-gcp">UI · FREE</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── CODE SNIPPETS ── -->
+  <section class="section" id="snippets">
+    <div class="section-title">Code Snippets — Built This Week</div>
+    <div class="cmd-list">
+
+      <div class="cmd-card">
+        <div class="cmd-line">
+          <span class="cmd-prompt">colab $</span>
+          <span class="cmd-code">parse_drawio(file_path) → nx.DiGraph</span>
+        </div>
+        <div class="cmd-objective"><strong>Sprint 1</strong> — Reads draw.io XML, returns a directed graph with all nodes and edges labeled</div>
+        <div class="cmd-example"># Status: pending · Will be added Week 1</div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-line">
+          <span class="cmd-prompt">colab $</span>
+          <span class="cmd-code">graph_query(filter_type='API') → list</span>
+        </div>
+        <div class="cmd-objective"><strong>Sprint 2</strong> — LangChain tool that queries the NetworkX graph by node type or attribute</div>
+        <div class="cmd-example"># Status: pending · Will be added Week 2</div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-line">
+          <span class="cmd-prompt">colab $</span>
+          <span class="cmd-code">get_dependents(node_id, depth=3) → impact_report</span>
+        </div>
+        <div class="cmd-objective"><strong>Sprint 3</strong> — Traverses downstream dependencies and returns all affected components</div>
+        <div class="cmd-example"># Status: pending · Will be added Week 3</div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-line">
+          <span class="cmd-prompt">colab $</span>
+          <span class="cmd-code">semantic_search(query) → top_k_nodes</span>
+        </div>
+        <div class="cmd-objective"><strong>Sprint 3</strong> — Uses FAISS + sentence-transformers to find relevant components by description</div>
+        <div class="cmd-example"># Status: pending · Will be added Week 3</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── TOOLS ── -->
+  <section class="section" id="tools">
+    <div class="section-title">Tools &amp; Libraries</div>
+    <div class="tools-grid">
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">Google AI Studio</span>
+          <span class="tool-type type-gcp">GCP</span>
+        </div>
+        <div class="tool-url"><a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></div>
+        <div class="tool-desc">Get your free Gemini API key here. 1M tokens/day free. No credit card needed for PoC.</div>
+        <div class="tool-used"># Used in: Sprint 2, 3, 4</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">Google Colab</span>
+          <span class="tool-type type-free">FREE</span>
+        </div>
+        <div class="tool-url"><a href="https://colab.research.google.com" target="_blank">colab.research.google.com</a></div>
+        <div class="tool-desc">Cloud notebook environment. No setup. GPU available free tier. Share via Drive link.</div>
+        <div class="tool-used"># Used in: All sprints</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">NetworkX</span>
+          <span class="tool-type type-python">PYTHON</span>
+        </div>
+        <div class="tool-url"><a href="https://networkx.org" target="_blank">networkx.org</a></div>
+        <div class="tool-desc">Graph library. DiGraph for directed architecture. shortest_path, descendants, predecessors all built-in.</div>
+        <div class="tool-used"># Used in: Sprint 1, 2, 3</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">LangChain</span>
+          <span class="tool-type type-oss">OSS</span>
+        </div>
+        <div class="tool-url"><a href="https://python.langchain.com" target="_blank">python.langchain.com</a></div>
+        <div class="tool-desc">Orchestrates LLM + tools. We use: Tool decorator, AgentExecutor, ConversationBufferMemory.</div>
+        <div class="tool-used"># Used in: Sprint 2, 3, 4</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">sentence-transformers</span>
+          <span class="tool-type type-oss">OSS</span>
+        </div>
+        <div class="tool-url"><a href="https://sbert.net" target="_blank">sbert.net</a></div>
+        <div class="tool-desc">Generates text embeddings locally. Model: all-MiniLM-L6-v2. No API. Runs on CPU in Colab.</div>
+        <div class="tool-used"># Used in: Sprint 3, 4</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">FAISS</span>
+          <span class="tool-type type-oss">OSS</span>
+        </div>
+        <div class="tool-url"><a href="https://faiss.ai" target="_blank">faiss.ai</a></div>
+        <div class="tool-desc">In-memory vector store by Meta. Finds similar embeddings by cosine distance. No DB setup needed.</div>
+        <div class="tool-used"># Used in: Sprint 3, 4</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">draw.io / diagrams.net</span>
+          <span class="tool-type type-free">FREE</span>
+        </div>
+        <div class="tool-url"><a href="https://app.diagrams.net" target="_blank">app.diagrams.net</a></div>
+        <div class="tool-desc">Source of truth for the architecture diagram. Export as XML (.drawio) to feed the parser.</div>
+        <div class="tool-used"># Used in: Sprint 1</div>
+      </div>
+
+      <div class="tool-card">
+        <div class="tool-header">
+          <span class="tool-name">ipywidgets</span>
+          <span class="tool-type type-python">PYTHON</span>
+        </div>
+        <div class="tool-url"><a href="https://ipywidgets.readthedocs.io" target="_blank">ipywidgets.readthedocs.io</a></div>
+        <div class="tool-desc">Interactive UI widgets inside Colab. We use Text input + Output widget to build the chat interface for the demo.</div>
+        <div class="tool-used"># Used in: Sprint 4</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── ARCHITECTURE DECISIONS ── -->
+  <section class="section" id="decisions">
+    <div class="section-title">Architecture Decisions — PoC</div>
+    <div class="rule-list">
+
+      <div class="rule-item">
+        <div class="rule-num">01</div>
+        <div class="rule-text"><strong>Google Colab as the platform</strong> — Zero infra setup. The entire PoC runs in a browser-based notebook. Easy to demo live, easy to share with the team via Drive link. No Cloud Run, no GKE for the PoC.</div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">02</div>
+        <div class="rule-text"><strong>Gemini 1.5 Flash as primary LLM</strong> — Free tier (1M tokens/day), low latency, natively integrated with GCP ecosystem. OSS fallback: Groq free tier with Llama 3.3 70B if quota runs out.</div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">03</div>
+        <div class="rule-text"><strong>NetworkX over Spanner Graph</strong> — In-memory graph for PoC. Zero cost, zero setup. If the boss approves the project, we migrate to Spanner Graph or Neo4j for production.</div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">04</div>
+        <div class="rule-text"><strong>FAISS over Vertex AI Vector Search</strong> — In-memory vector store for PoC. Runs locally in Colab. Production path: Vertex AI Vector Search when scaling to multiple diagrams.</div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">05</div>
+        <div class="rule-text"><strong>Draw.io XML as single source of truth</strong> — The richer the labels and metadata in the diagram, the smarter the chatbot. Before Sprint 1, Antonio enriches the diagram with component types, tags, and descriptions.</div>
+      </div>
+
+      <div class="rule-item">
+        <div class="rule-num">06</div>
+        <div class="rule-text"><strong>Learning by doing with Claude</strong> — No external courses. Every line of code is built together in this conversation. The team learns by reading, questioning, and modifying working code — not watching videos.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── WEEKLY LOG ── -->
+  <section class="section" id="log">
+    <div class="section-title">Weekly Build Log</div>
+
+    <div class="week-entry current">
+      <div class="week-header">
+        <span class="week-title">Week 0 — May 5, 2025 · Project Kickoff</span>
+        <span class="week-badge badge-active">ACTIVE</span>
+      </div>
+      <ul class="week-items">
+        <li>Defined PoC scope: Architecture Intelligence Chatbot in 4 weeks</li>
+        <li>Selected zero-cost stack: Colab + Gemini + NetworkX + FAISS + LangChain</li>
+        <li>Established learning-by-doing approach with Claude as pair programmer</li>
+        <li>Architecture decisions documented (6 ADRs)</li>
+        <li>Next: Upload draw.io file → start Sprint 1 parser</li>
+      </ul>
+    </div>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>antonio@arch-bot:~$ <span>Architecture Intelligence PoC · 4-Week Build</span></div>
+    <div>last_updated: <span id="last_updated">2025-05-05</span> · stack: <span>GCP + LLM OSS + LangChain · $0</span></div>
+  </footer>
+
+</div><!-- end wrapper -->
+
+<script>
+  const PASS = 'archbot2025';
+
+  function checkPassword() {
+    const val = document.getElementById('pwd-input').value;
+    if (val === PASS) {
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+    } else {
+      const err = document.getElementById('lock-error');
+      const inp = document.getElementById('pwd-input');
+      err.textContent = '// ACCESS DENIED — invalid key';
+      inp.classList.add('shake');
+      setTimeout(() => inp.classList.remove('shake'), 500);
+      inp.value = '';
+    }
+  }
+
+  document.getElementById('pwd-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') checkPassword();
+  });
+</script>
+
+</body>
+</html>
