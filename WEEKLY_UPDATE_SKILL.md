@@ -105,8 +105,8 @@ Note: The bash environment may not have network access to GitHub. If the push fa
 - Sprint 4 (Week 4): ipywidgets chat UI → conversation memory → demo script → boss presentation
 
 ## GitHub / Netlify info
-- GitHub repo: https://github.com/TonoRey/architecture-bot-poc (create if not exists)
-- Live site: to be configured on Netlify after first push
+- GitHub repo: https://github.com/TonoRey/architecture-bot-poc
+- Live site: https://elclaudio.netlify.app
 - User: Antonio Reyes Nava (antonioreyesnava@gmail.com)
 - GitHub handle: TonoRey
 - Timezone: CST (Mexico City)

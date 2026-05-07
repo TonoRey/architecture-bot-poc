@@ -459,7 +459,7 @@
   <header>
     <div class="prompt-line"><span>antonio</span>@<span>arch-bot</span>:~$ ./build_poc.sh --project=architecture-intelligence --sprint=1</div>
     <h1>Architecture Intelligence Chatbot — PoC Path<span class="cursor"></span></h1>
-    <div class="tagline"># 4-week PoC · Started May 5, 2025 · Target: June 2, 2025 · Stack: GCP + LLM OSS + LangChain</div>
+    <div class="tagline"># 4-week PoC · Started May 5, 2025 · Target: June 2, 2025 · Stack: GCP + LLM OSS + LangChain · <a href="https://elclaudio.netlify.app" style="color:var(--blue-mid);text-decoration:none;">elclaudio.netlify.app</a></div>
   </header>
 
   <!-- NAV -->
@@ -824,23 +824,31 @@
 </div><!-- end wrapper -->
 
 <script>
-  const PASS = 'archbot2025';
+  // SHA-256 hash of the access password (never stored in plaintext)
+  const HASH = 'ff46fa618ecc5ace097e1e2bdf432afda98c25a056bb5a0077602c15b12d65b7';
 
-  function checkPassword() {
-    const val = document.getElementById('pwd-input').value;
-    if (val === PASS) {
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async function checkPassword() {
+    const input = document.getElementById('pwd-input').value;
+    const hash  = await sha256(input);
+    if (hash === HASH) {
       document.getElementById('lock-screen').style.display = 'none';
       document.getElementById('main-content').style.display = 'block';
     } else {
-      const err = document.getElementById('lock-error');
+      const el = document.getElementById('lock-error');
+      el.textContent = '// access denied';
       const inp = document.getElementById('pwd-input');
-      err.textContent = '// ACCESS DENIED — invalid key';
       inp.classList.add('shake');
-      setTimeout(() => inp.classList.remove('shake'), 500);
       inp.value = '';
+      setTimeout(() => { inp.classList.remove('shake'); el.textContent = ''; }, 800);
     }
   }
 
+  // Allow Enter key to submit
   document.getElementById('pwd-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkPassword();
   });
